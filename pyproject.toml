@@ -1,0 +1,48 @@
+[project]
+name = "viddup"
+version = "0.1.0"
+description = "A fast, local video duplicate detector"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["video", "duplicate", "deduplication", "cli"]
+authors = [{ name = "VidDup Contributors" }]
+
+dependencies = [
+    "click>=8.1",
+    "rich>=13.0",
+    "imagehash>=4.3",
+    "Pillow>=10.0",
+    "xxhash>=3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[project.scripts]
+viddup = "viddup.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
