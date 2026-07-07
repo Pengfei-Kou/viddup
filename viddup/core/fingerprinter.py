@@ -11,11 +11,10 @@ so they can be pickled by ProcessPoolExecutor.
 from __future__ import annotations
 
 import io
-import statistics
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import imagehash
 import xxhash
@@ -24,7 +23,6 @@ from PIL import Image
 from viddup.config import MIN_FRAME_VARIANCE
 from viddup.core.database import FingerprintRecord
 from viddup.utils.ffmpeg_utils import extract_frame_at, probe_video
-
 
 # ── Worker helpers (module-level for pickling) ────────────────────────────────
 
@@ -140,7 +138,7 @@ def _fingerprint_worker(
     path_str: str,
     num_frames: int,
     min_variance: float,
-) -> tuple[str, dict | None, str | None]:
+) -> tuple[str, dict[str, Any] | None, str | None]:
     """
     Top-level worker for ProcessPoolExecutor (must be importable at module level).
 
@@ -198,7 +196,7 @@ def generate_fingerprints(
     workers: int,
     no_cache: bool,
     min_variance: float = MIN_FRAME_VARIANCE,
-    progress_callback=None,  # callable(path, from_cache, error) or None
+    progress_callback: Any = None,  # callable(path, from_cache, error) or None
 ) -> list[FingerprintResult]:
     """
     Generate fingerprints for all *paths*, using the DB cache where possible.
@@ -282,7 +280,7 @@ def generate_fingerprints(
                         height=data["height"],
                         codec=data["codec"],
                         frame_hashes=data["frame_hashes"],
-                        indexed_at=datetime.now(timezone.utc).isoformat(),
+                        indexed_at=datetime.now(UTC).isoformat(),
                     )
                     db.upsert(record)
                     result = FingerprintResult(
@@ -314,5 +312,5 @@ def _empty_record(path: Path) -> FingerprintRecord:
         height=None,
         codec=None,
         frame_hashes=None,
-        indexed_at=datetime.now(timezone.utc).isoformat(),
+        indexed_at=datetime.now(UTC).isoformat(),
     )

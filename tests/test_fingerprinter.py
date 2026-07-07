@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import io
 
-import pytest
 from PIL import Image
 
 from viddup.core.fingerprinter import (
@@ -11,7 +10,6 @@ from viddup.core.fingerprinter import (
     _frame_variance,
     _phash_bytes,
 )
-
 
 # ── _compute_file_hash ────────────────────────────────────────────────────────
 
@@ -59,7 +57,6 @@ def test_solid_white_frame_has_zero_variance():
 
 
 def test_checkerboard_frame_has_high_variance():
-    import numpy as np
     img = Image.new("L", (64, 64))
     pixels = [0 if (x + y) % 2 == 0 else 255 for y in range(64) for x in range(64)]
     img.putdata(pixels)

@@ -34,8 +34,8 @@ def get_ffmpeg_path() -> str:
 
     # 2. imageio-ffmpeg fallback
     try:
-        import imageio_ffmpeg
-        return imageio_ffmpeg.get_ffmpeg_exe()
+        import imageio_ffmpeg  # type: ignore[import-untyped]
+        return str(imageio_ffmpeg.get_ffmpeg_exe())
     except Exception:
         return "ffmpeg"  # will fail at runtime with a clear error
 
@@ -322,10 +322,14 @@ def extract_thumbnail_base64(
     try:
         with Image.open(io.BytesIO(raw)) as img:
             w, h = img.size
+            out: Image.Image = img
             if w > max_width:
-                img = img.resize((max_width, int(h * max_width / w)), Image.LANCZOS)
+                out = img.resize(
+                    (max_width, int(h * max_width / w)),
+                    Image.Resampling.LANCZOS,
+                )
             buf = io.BytesIO()
-            img.convert("RGB").save(buf, format="JPEG", quality=quality)
+            out.convert("RGB").save(buf, format="JPEG", quality=quality)
             return base64.b64encode(buf.getvalue()).decode("ascii")
     except Exception:
         return None

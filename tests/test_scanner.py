@@ -1,12 +1,9 @@
 """Tests for the directory scanner and .viddup_ignore support."""
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from viddup.core.scanner import is_ignored, load_ignore_patterns, scan_directories
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 

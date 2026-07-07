@@ -4,17 +4,16 @@ Result formatting: Rich terminal output and JSON report generation.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
+from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich import box
-from rich.text import Text
 
 from viddup.core.comparator import DuplicateGroup
-from viddup.core.database import FingerprintRecord
 
 console = Console()
 
@@ -136,7 +135,7 @@ def print_summary(
 
 # ── JSON report ───────────────────────────────────────────────────────────────
 
-def _group_to_dict(group: DuplicateGroup) -> dict:
+def _group_to_dict(group: DuplicateGroup) -> dict[str, Any]:
     return {
         "group_id": group.group_id,
         "similarity": group.similarity,
@@ -164,14 +163,14 @@ def write_json_report(
     output_dir: Path,
 ) -> Path:
     """Write a JSON report and return its path."""
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     report_path = output_dir / f"viddup_report_{timestamp}.json"
 
     from viddup import __version__
 
     report = {
         "viddup_version": __version__,
-        "scan_time": datetime.now(timezone.utc).isoformat(),
+        "scan_time": datetime.now(UTC).isoformat(),
         "scan_paths": [str(p) for p in scan_paths],
         "total_videos": total_videos,
         "exact_duplicate_groups": [_group_to_dict(g) for g in exact_groups],

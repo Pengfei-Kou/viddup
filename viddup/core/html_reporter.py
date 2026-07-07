@@ -1,10 +1,11 @@
 """HTML report generation for VidDup scan results."""
 from __future__ import annotations
 
-import json
+from datetime import UTC
 from pathlib import Path
 
 from viddup.core.comparator import DuplicateGroup
+from viddup.core.database import FingerprintRecord
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -157,7 +158,8 @@ pre{
   padding:16px;font-size:.8rem;line-height:1.6;color:#86efac;
   white-space:pre-wrap;word-break:break-all;
 }
-.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end}
 /* ── Sticky bottom bar ── */
 .bottom-bar{
   position:fixed;bottom:0;left:0;right:0;z-index:150;
@@ -268,10 +270,19 @@ def _thumb_img(thumb_b64: str | None) -> str:
     return '<div class="thumb-placeholder">🎬</div>'
 
 
-def _file_card_html(rec, is_suggested: bool, thumb_b64: str | None) -> str:
+def _file_card_html(
+    rec: FingerprintRecord, is_suggested: bool, thumb_b64: str | None,
+) -> str:
     name = Path(rec.path).name
-    meta = f"{_human_size(rec.file_size)} · {rec.resolution} · {rec.codec or '?'} · {_fmt_dur(rec.duration)}"
-    keep_badge = '<span class="badge badge-keep">★ 建议保留</span>' if is_suggested else '<span class="badge badge-del">待删除</span>'
+    meta = (
+        f"{_human_size(rec.file_size)} · {rec.resolution}"
+        f" · {rec.codec or '?'} · {_fmt_dur(rec.duration)}"
+    )
+    keep_badge = (
+        '<span class="badge badge-keep">★ 建议保留</span>'
+        if is_suggested
+        else '<span class="badge badge-del">待删除</span>'
+    )
     suggested_cls = " suggested" if is_suggested else ""
     cb_label = "保留" if is_suggested else "已选中删除"
     path_esc = rec.path.replace('"', '\\"')
@@ -331,8 +342,8 @@ def write_html_report(
     The report is fully offline — no external requests except Google Fonts.
     Returns the path to the generated HTML file.
     """
-    from datetime import datetime, timezone
-    scan_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    from datetime import datetime
+    scan_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     paths_str = ", ".join(str(p) for p in scan_paths)
 
     exact_reclaim = sum(g.reclaimable_size for g in exact_groups)
@@ -357,7 +368,11 @@ def write_html_report(
 
     no_dup = ""
     if not exact_groups and not similar_groups:
-        no_dup = '<p style="color:var(--muted);text-align:center;padding:60px 0;font-size:1.1rem">🎉 未发现重复视频</p>'
+        no_dup = (
+            '<p style="color:var(--muted);text-align:center;'
+            'padding:60px 0;font-size:1.1rem">'
+            '🎉 未发现重复视频</p>'
+        )
 
     html = f"""<!DOCTYPE html>
 <html lang="zh">
@@ -366,7 +381,8 @@ def write_html_report(
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VidDup 扫描报告</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet">
 <style>{_CSS}</style>
 </head>
 <body>
@@ -375,10 +391,18 @@ def write_html_report(
   <h1>🔍 VidDup 扫描报告</h1>
   <div class="sub">扫描时间: {scan_time} · 目录: {paths_str}</div>
   <div class="stats-row">
-    <div class="stat-pill"><span class="val">{total_videos}</span><span class="lbl">视频总数</span></div>
-    <div class="stat-pill"><span class="val">{len(exact_groups)}</span><span class="lbl">精确重复组</span></div>
-    <div class="stat-pill"><span class="val">{len(similar_groups)}</span><span class="lbl">近似重复组</span></div>
-    <div class="stat-pill"><span class="val">{_human_size(total_reclaim)}</span><span class="lbl">可释放空间</span></div>
+    <div class="stat-pill">
+      <span class="val">{total_videos}</span>
+      <span class="lbl">视频总数</span></div>
+    <div class="stat-pill">
+      <span class="val">{len(exact_groups)}</span>
+      <span class="lbl">精确重复组</span></div>
+    <div class="stat-pill">
+      <span class="val">{len(similar_groups)}</span>
+      <span class="lbl">近似重复组</span></div>
+    <div class="stat-pill">
+      <span class="val">{_human_size(total_reclaim)}</span>
+      <span class="lbl">可释放空间</span></div>
   </div>
 </header>
 
@@ -435,8 +459,8 @@ setInterval(() => {{
 </html>"""
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    from datetime import datetime, timezone
-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    from datetime import datetime
+    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     report_path = output_dir / f"viddup_report_{ts}.html"
     report_path.write_text(html, encoding="utf-8")
     return report_path

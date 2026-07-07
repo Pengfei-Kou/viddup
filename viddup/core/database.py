@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import datetime, timezone
 from pathlib import Path
 
 _SCHEMA_VERSION = 1
@@ -206,7 +205,7 @@ class Database:
     def close(self) -> None:
         self._conn.close()
 
-    def __enter__(self) -> "Database":
+    def __enter__(self) -> Database:
         return self
 
     def __exit__(self, *_: object) -> None:

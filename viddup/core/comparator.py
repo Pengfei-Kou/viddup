@@ -7,14 +7,12 @@ and median Hamming distance for robust pHash comparison.
 from __future__ import annotations
 
 import statistics
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass
 
 import imagehash
 
 from viddup.core.database import FingerprintRecord
-
 
 # ── pHash comparison ──────────────────────────────────────────────────────────
 
@@ -36,7 +34,7 @@ def compare_frame_hashes(
         return 0.0
 
     distances: list[int] = []
-    for ha, hb in zip(hashes_a[:n], hashes_b[:n]):
+    for ha, hb in zip(hashes_a[:n], hashes_b[:n], strict=True):
         try:
             dist = imagehash.hex_to_hash(ha) - imagehash.hex_to_hash(hb)
             distances.append(dist)

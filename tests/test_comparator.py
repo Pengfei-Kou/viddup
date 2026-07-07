@@ -5,14 +5,12 @@ import imagehash
 from PIL import Image
 
 from viddup.core.comparator import (
-    DuplicateGroup,
     _UnionFind,
     compare_frame_hashes,
     find_duplicates,
     suggest_keep,
 )
 from viddup.core.database import FingerprintRecord
-
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

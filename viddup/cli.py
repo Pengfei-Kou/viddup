@@ -213,7 +213,13 @@ def scan(
     computed_count = 0
     error_count = 0
 
-    from rich.progress import Progress, SpinnerColumn, BarColumn, TaskProgressColumn, TimeElapsedColumn
+    from rich.progress import (
+        BarColumn,
+        Progress,
+        SpinnerColumn,
+        TaskProgressColumn,
+        TimeElapsedColumn,
+    )
 
     with Progress(
         SpinnerColumn(),
@@ -312,7 +318,7 @@ def status(db_path: Path) -> None:
             1 for r in db.get_all() if not Path(r.path).exists()
         )
 
-    console.print(f"\n[bold]📊 VidDup 数据库状态[/]")
+    console.print("\n[bold]📊 VidDup 数据库状态[/]")
     console.print(f"  路径:         {db_path}")
     console.print(f"  已缓存视频:  [green]{count}[/] 个")
     console.print(f"  孤儿记录:    [{'red' if orphan_count else 'green'}]{orphan_count}[/] 个")
