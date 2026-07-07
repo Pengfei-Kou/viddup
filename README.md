@@ -11,12 +11,12 @@
 
 ## Demo
 
-![VidDup terminal scan demo](docs/assets/demo.gif)
+![VidDup terminal scan demo](https://raw.githubusercontent.com/Pengfei-Kou/viddup/main/docs/assets/demo.gif)
 
 > 扫描完成后自动生成交互式 HTML 报告 ↓
 
-![HTML report — exact duplicates](docs/assets/html_report1.png)
-![HTML report — near duplicates](docs/assets/html_report2.png)
+![HTML report — exact duplicates](https://raw.githubusercontent.com/Pengfei-Kou/viddup/main/docs/assets/html_report1.png)
+![HTML report — near duplicates](https://raw.githubusercontent.com/Pengfei-Kou/viddup/main/docs/assets/html_report2.png)
 
 ---
 
