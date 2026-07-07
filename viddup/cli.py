@@ -282,7 +282,7 @@ def scan(
         console.print(f"[cyan]🌐 HTML 报告已保存: {html_path}[/]")
         if open_browser:
             import webbrowser
-            webbrowser.open(html_path.as_uri())
+            webbrowser.open(html_path.resolve().as_uri())
 
 
 # ── status ────────────────────────────────────────────────────────────────────

@@ -167,8 +167,10 @@ def write_json_report(
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     report_path = output_dir / f"viddup_report_{timestamp}.json"
 
+    from viddup import __version__
+
     report = {
-        "viddup_version": "0.1.0",
+        "viddup_version": __version__,
         "scan_time": datetime.now(timezone.utc).isoformat(),
         "scan_paths": [str(p) for p in scan_paths],
         "total_videos": total_videos,

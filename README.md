@@ -9,6 +9,17 @@
 
 ---
 
+## Demo
+
+![VidDup terminal scan demo](docs/assets/demo.gif)
+
+> 扫描完成后自动生成交互式 HTML 报告 ↓
+
+![HTML report — exact duplicates](docs/assets/html_report1.png)
+![HTML report — near duplicates](docs/assets/html_report2.png)
+
+---
+
 ## Why VidDup?
 
 Most duplicate detectors only find **byte-for-byte identical** files. VidDup goes further:
@@ -29,11 +40,7 @@ VidDup uses **perceptual frame hashing (pHash)** across multiple sampled frames 
 ## Quick Start
 
 ```bash
-# Install system dependency
-brew install ffmpeg          # macOS
-# sudo apt install ffmpeg   # Ubuntu/Debian
-
-# Install VidDup
+# Install VidDup (FFmpeg is bundled automatically — no extra steps!)
 pip install viddup
 
 # Scan a directory
@@ -41,6 +48,8 @@ viddup scan ~/Movies
 ```
 
 That's it. A terminal report is printed and an **interactive HTML report** (with video thumbnails) is automatically saved to the scanned directory and opened in your browser.
+
+> 💡 **Zero external dependencies** — VidDup bundles a static FFmpeg binary via `imageio-ffmpeg`. No need to `brew install ffmpeg` or `apt install ffmpeg`.
 
 ---
 
@@ -50,8 +59,9 @@ That's it. A terminal report is printed and an **interactive HTML report** (with
   - L1: xxHash3-128 — instant exact-copy detection
   - L2: Duration metadata — groups candidates, skips impossible pairs
   - L3: 10-frame pHash — perceptual similarity across re-encodes and re-scales
-- **Robust pHash comparison** — uses median Hamming distance (not average), resistent to black frames, fade-outs, and title cards
+- **Robust pHash comparison** — uses median Hamming distance (not average), resistant to black frames, fade-outs, and title cards
 - **Smart frame selection** — automatically skips solid-color frames and retries with alternate timestamps
+- **Ultra-short video handling** — graceful degradation for clips under 3 seconds
 - **Incremental SQLite cache** — fingerprints are cached; re-scanning a library of 500 videos takes seconds after the first run
 - **Multi-directory scan** — finds duplicates across multiple folders in one pass
 - **`.viddup_ignore`** — exclude directories and files with glob patterns, like `.gitignore`
@@ -65,23 +75,44 @@ That's it. A terminal report is printed and an **interactive HTML report** (with
 ### Requirements
 
 - Python 3.11+
-- `ffmpeg` (system binary)
+- FFmpeg — **bundled automatically** (or use your own system install)
 
 ```bash
-# macOS
-brew install ffmpeg
+# Recommended: one command, everything included
 pip install viddup
 
-# Ubuntu / Debian
-sudo apt install ffmpeg
-pip install viddup
+# Or run directly without installing (via uvx)
+uvx viddup scan ~/Movies
 
 # From source (development)
-git clone https://github.com/your-username/viddup.git
+git clone https://github.com/Pengfei-Kou/viddup.git
 cd viddup
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
+
+> 🔧 **Already have FFmpeg installed?** VidDup will automatically prefer your system `ffmpeg` over the bundled one. No configuration needed.
+
+---
+
+## Supported Video Formats
+
+VidDup scans files with the following extensions:
+
+| Format | Extension |
+|--------|-----------|
+| MPEG-4 | `.mp4`, `.m4v` |
+| Matroska | `.mkv` |
+| AVI | `.avi` |
+| QuickTime | `.mov` |
+| WebM | `.webm` |
+| Flash Video | `.flv` |
+| Windows Media | `.wmv` |
+| MPEG Transport Stream | `.ts` |
+| MPEG | `.mpeg`, `.mpg` |
+| 3GPP | `.3gp` |
+
+Other formats can be decoded if FFmpeg supports them — contributions to extend the list are welcome!
 
 ---
 
@@ -272,8 +303,10 @@ ruff check .    # lint
 
 ### Roadmap
 
+- [ ] **v0.2**: Demo GIF and HTML report screenshots in README
 - [ ] **v0.3**: BK-tree for large libraries (10,000+ videos), audio fingerprint verification, `.viddup_ignore` negation patterns
-- [ ] **v1.0**: PyQt desktop GUI option, PyPI publishing, Windows testing
+- [ ] **v0.4**: Standalone binaries via PyInstaller + GitHub Actions (macOS, Windows, Linux)
+- [ ] **v1.0**: PyQt desktop GUI option, Windows full testing
 
 ---
 

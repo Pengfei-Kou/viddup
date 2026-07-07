@@ -71,10 +71,30 @@ def _compute_frame_hashes(
     2. For each primary timestamp that yields a low-variance (solid) frame,
        try candidate alternates until a valid frame is found.
     3. Return None if fewer than half the requested frames can be hashed.
+
+    Ultra-short videos (< 3 s) are handled with a reduced frame count to
+    avoid timestamp overlap and extraction failures.
     """
     if duration <= 0:
         return None
 
+    # ── Degrade for ultra-short videos ────────────────────────────────────────
+    if duration < 3.0:
+        num_frames = min(num_frames, 2)
+
+    try:
+        return _extract_hashes(path, num_frames, duration, min_variance)
+    except Exception:
+        return None
+
+
+def _extract_hashes(
+    path: Path,
+    num_frames: int,
+    duration: float,
+    min_variance: float,
+) -> list[str] | None:
+    """Inner extraction logic, separated for clean try/except wrapping."""
     step = 1.0 / (num_frames + 1)
     primary_ts = [duration * step * (i + 1) for i in range(num_frames)]
 
@@ -109,7 +129,9 @@ def _compute_frame_hashes(
                 used_ts.add(alt)
                 break
 
-    if len(hashes) < max(1, num_frames // 2):
+    # For ultra-short videos, accept even 1 frame; otherwise need half
+    min_required = 1 if duration < 3.0 else max(1, num_frames // 2)
+    if len(hashes) < min_required:
         return None
     return hashes
 
